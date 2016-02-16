@@ -78,7 +78,6 @@ class Order extends Application {
 
     // add an item to an order
     function add($order_num, $item) {
-        //FIXME
         $this->Orders->add_item($order_num, $item);
         redirect('/order/display_menu/' . $order_num);
     }
@@ -88,7 +87,18 @@ class Order extends Application {
         $this->data['title'] = 'Checking Out';
         $this->data['pagebody'] = 'show_order';
         $this->data['order_num'] = $order_num;
-        //FIXME
+        
+        $this->data['total'] = number_format($this->Orders->total($order_num), 2);
+        
+        $items = $this->Orderitems->group($order_num);
+        foreach ($items as $item)
+        {
+            $menuitem = $this->Menu->get($item->item);
+            $item->code = $menuitem->name;
+        }
+        $this->data['items'] = $items;
+        
+        $this->data['okornot'] = $this->Orders->validate($order_num) ? "" : "disabled";
 
         $this->render();
     }
